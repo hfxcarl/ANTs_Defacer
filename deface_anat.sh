@@ -1,35 +1,28 @@
 #!/bin/bash
 
-Usage() {
+function Usage() {
 	echo
 	echo "Usage: $(basename $0) -i </path/to/t1.nii.gz> -t T1w"
 	echo
-	echo "Example: $(basename $0) -t 1 -i /sub-007_ses-a1_T1w.nii.gz"
+	echo "Examples:" 
+	echo "  $(basename $0) -t T1w -i /sub-01_T1w.nii.gz"
+	echo "  $(basename $0) -t T2w -i /sub-01_T2w.nii.gz"
 	echo
 	echo "compulsory:"
 	echo "  -i:  input image"
 	echo "  -t:  image type [T1w, T2w, FLAIR]"
 	echo
 	echo "optional:"
-	echo "  -v:  verbose mode"
+	echo "  -v:  enable more verbose mode"
 	echo "  -d:  enable debug mode to save work-dir, also enables -v"
 	echo
 	exit 1
 }
+function realpath { echo $(cd $(dirname $1); pwd)/$(basename $1); }
 
-py3exe=$(which python3)
-if [ ! -e "$py3exe" ]; then
-	echo "*** ERROR: failed to locate required program: python3"
-	exit 2
-fi
-
-SCRIPT=$(${py3exe} -c "from os.path import abspath; print(abspath('$0'))")
+SCRIPT=$(realpath $0)
 SCRIPTSDIR=$(dirname $SCRIPT)
-project_dir=$(dirname $SCRIPTSDIR)
-
-## AFNI
-#export AFNIDIR=/opt/afni
-#export PATH="$AFNIDIR:$PATH"
+project_dir=$SCRIPTSDIR
 
 ## ANTs
 export ANTSPATH=/opt/ANTs/bin
@@ -42,7 +35,7 @@ source $FSLDIR/etc/fslconf/fsl.sh
 export PATH="$PATH:$FSLDIR/bin"
 
 ## MNI Templates path for Defacing
-MNI_T_PATH=$project_dir/templates/MNI152
+MNI_T_PATH=$project_dir/templates/
 MNI_T1=${MNI_T_PATH}/MNI152_T1_1mm.nii.gz
 MNI_T2=${MNI_T_PATH}/MNI152_T2_1mm.nii.gz
 FACEMASK_SMALLFOV=${MNI_T_PATH}/MNI152_T1_1mm_facemask.nii.gz
@@ -97,7 +90,11 @@ if [[ -z "$IN_IMG" ]]; then
 	echo -e "\n * ERROR: missing input -i </path/to/img>\n"
 	Usage
 fi
-
+input_img=$(realpath ${IN_IMG})
+if [ ! -r "$input_img" ]; then
+	echo "*** ERROR: cannot locate specified input_img = $input_img/"
+	exit 2
+fi
 if [[ ! -z "$TYPE_IN" ]]; then
 	if [ "$TYPE_IN" == "T1w" ]; then
 		IMG_TYPE="T1w"
@@ -112,11 +109,7 @@ if [[ ! -z "$TYPE_IN" ]]; then
 	echo " - input option IN_IMG=${IMG_TYPE}, using template=${TemplateImg}"
 fi
 
-input_img=$(${py3exe} -c "from os.path import abspath; print(abspath('$IN_IMG'))")
-if [ ! -r "$input_img" ]; then
-	echo "*** ERROR: cannot locate specified input_img = $input_img/"
-	exit 2
-fi
+
 if [ "$VERBOSE" == "yes" ]; then
 	echo " ++ defacing $IMG_TYPE input image = $input_img"
 fi

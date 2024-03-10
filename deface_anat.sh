@@ -35,7 +35,7 @@ source $FSLDIR/etc/fslconf/fsl.sh
 export PATH="$PATH:$FSLDIR/bin"
 
 ## MNI Templates path for Defacing
-MNI_T_PATH=$project_dir/templates/
+MNI_T_PATH=$project_dir/templates
 MNI_T1=${MNI_T_PATH}/MNI152_T1_1mm.nii.gz
 MNI_T2=${MNI_T_PATH}/MNI152_T2_1mm.nii.gz
 FACEMASK_SMALLFOV=${MNI_T_PATH}/MNI152_T1_1mm_facemask.nii.gz

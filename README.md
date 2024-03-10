@@ -12,6 +12,6 @@ bash ./deface_anat.sh -t T1w -i example_data/sub-01_T1w.nii.gz
 ```
 
 ### Requires
-python 
-ANTS
-FSL
+1. python3
+2. ANTs
+3. FSL

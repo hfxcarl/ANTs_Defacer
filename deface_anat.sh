@@ -29,10 +29,6 @@ export ANTSPATH=/opt/ANTs/bin
 export PATH="$ANTSPATH:$PATH"
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=4
 
-## FSL
-export FSLDIR=/opt/fsl
-source $FSLDIR/etc/fslconf/fsl.sh
-export PATH="$PATH:$FSLDIR/bin"
 
 ## MNI Templates path for Defacing
 MNI_T_PATH=$project_dir/templates
@@ -175,7 +171,10 @@ fi
 if [ "$VERBOSE" == "yes" ]; then
 	echo " ++ applying ${img}_defacemask.nii.gz to ${img}.nii.gz --> ${img}_defaced.nii.gz"
 fi
-fslmaths ${img}_defacemask.nii.gz -binv -mul ${img}.nii.gz ../${img}_defaced.nii.gz
+${ANTSPATH}/ImageMath 3 ${img}_defacemask_neg.nii.gz Neg ${img}_defacemask.nii.gz
+${ANTSPATH}/ImageMath 3 ../${img}_defaced.nii.gz m ${img}_defacemask_neg.nii.gz ${img}.nii.gz
+## using FSL to invert and apply mask:
+##fslmaths ${img}_defacemask.nii.gz -binv -mul ${img}.nii.gz ../${img}_defaced.nii.gz
 
 ## navigate back up to main output dir
 cd ../
